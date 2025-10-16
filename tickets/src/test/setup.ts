@@ -1,18 +1,21 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import request from 'supertest';
-import { app } from '../app';
+import jwt from 'jsonwebtoken';
+
+// increase global timeout BEFORE any hooks
+jest.setTimeout(60000);
 
 declare global {
-    var signin: () => Promise<string[]>;
+  var signin: () => string[];
 }
 
 let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
-  jest.setTimeout(60000); // setup can take longer
-
   process.env.JWT_KEY = 'asdf';
+  
+  // Force MongoDB version 4.4+ to fix wire version compatibility
+  process.env.MONGOMS_VERSION = '4.4.29';
 
   mongo = await MongoMemoryServer.create({
     binary: {
@@ -22,7 +25,7 @@ beforeAll(async () => {
       dbName: 'test' // Optional: add database name
     }
   });
-
+  
   const mongoUri = await mongo.getUri(); // Remove await since getUri() returns string, not Promise
 
   await mongoose.connect(mongoUri, {
@@ -32,8 +35,10 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  if(mongoose.connection.db){
+  // Check if connection and db exist
+  if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
     const collections = await mongoose.connection.db.collections();
+    
     for (const collection of collections) {
       await collection.deleteMany({});
     }
@@ -41,28 +46,27 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  jest.setTimeout(60000); // teardown can take longer
+  // Close mongoose connection first
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
 
-  // Disconnect mongoose
-  await mongoose.disconnect();
-
-  // Stop mongo-memory-server and kill child processes
+  // Then stop memory server
   if (mongo) {
     await mongo.stop();
   }
 });
 
-global.signin = async () => {
-    const authResponse = await request(app)
-        .post("/api/users/signup")
-        .send({
-            email: "test@test.com",
-            password: "password",
-        })
-        .expect(201);
-    const cookie = authResponse.get("Set-Cookie");
-    if(!cookie){
-        throw new Error("Cookie not found");
-    }
-    return cookie;
-}
+global.signin = () => {
+  const payload = {
+    id: new mongoose.Types.ObjectId().toHexString(),
+    email: 'test@test.com',
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_KEY!);
+  const session = { jwt: token };
+  const sessionJSON = JSON.stringify(session);
+  const base64 = Buffer.from(sessionJSON).toString('base64');
+
+  return [`session=${base64}`];
+};
