@@ -3,6 +3,8 @@ import { requireAuth } from '@retix/common'
 import { body } from "express-validator";
 import { validateRequest } from "@retix/common";
 import { Ticket } from '../models/ticket';
+import { TicketCreatedPublisher } from '../events/publishers/ticket-created-publisher';
+import { natsWrapper } from '../nats-wrapper';
 const router = express.Router();
 
 router.post('/api/tickets',
@@ -11,11 +13,17 @@ router.post('/api/tickets',
         body('title').not().isEmpty().withMessage('Title is required'),
         body('price').isFloat({ gt: 0 }).withMessage('Price must be greater than 0')
     ],
-    validateRequest,
-    (req: Request, res: Response) => {
+    validateRequest, 
+    async (req: Request, res: Response) => {
         const { title, price } = req.body;
         const ticket = Ticket.build({ title, price, userId: req.currentUser!.id });
-        ticket.save();
+       await ticket.save();
+       await new TicketCreatedPublisher(natsWrapper.client).publish({
+        id: ticket.id,
+        title: ticket.title,
+        price: ticket.price,
+        userId: ticket.userId
+       });
         res.status(201).send(ticket);
 })
 

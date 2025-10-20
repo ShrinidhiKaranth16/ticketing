@@ -9,6 +9,8 @@ declare global {
   var signin: () => string[];
 }
 
+jest.mock('../nats-wrapper');
+
 let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
@@ -35,6 +37,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  jest.clearAllMocks();
   // Check if connection and db exist
   if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
     const collections = await mongoose.connection.db.collections();
