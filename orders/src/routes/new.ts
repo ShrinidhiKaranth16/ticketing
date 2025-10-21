@@ -42,10 +42,12 @@ router.post("/api/orders", requireAuth, [
         id: order.id,
         status: order.status,
         expiresAt: order.expiresAt.toISOString(),
+        userId: order.userId,
         ticket: {
             id: ticket.id,
             price: ticket.price
-        }
+        },
+        version: ticket.version
     })
     res.status(201).send(order);
 

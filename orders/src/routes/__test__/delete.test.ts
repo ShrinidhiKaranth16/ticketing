@@ -4,11 +4,13 @@ import { Ticket } from "../../models/ticket";
 import { Order } from "../../models/order";
 import { OrderStatus } from "@retix/common";
 import {natsWrapper} from "../../nats-wrapper";
+import mongoose from "mongoose";
 
 it("marks an order as cancelled",async()=>{
     const ticket = Ticket.build({
         title: 'new title',
-        price: 10
+        price: 10,
+        id:new mongoose.Types.ObjectId().toHexString()
     })
     await ticket.save();
     const user = global.signin();
@@ -26,7 +28,8 @@ it("marks an order as cancelled",async()=>{
 it("publishes an order cancelled event",async()=>{
     const ticket = Ticket.build({
         title: 'new title',
-        price: 10
+        price: 10,
+        id:new mongoose.Types.ObjectId().toHexString()
     })
     await ticket.save();
     const user = global.signin();

@@ -8,17 +8,20 @@ it("fetches orders for a particular user",async()=>{
 // create 3 tickets
 const ticketOne = Ticket.build({
     title: 'new title',
-    price: 10
+    price: 10,
+    id:new mongoose.Types.ObjectId().toHexString()
 })
 await ticketOne.save();
 const ticketTwo = Ticket.build({
     title: 'new title',
-    price: 10
+    price: 10,
+    id:new mongoose.Types.ObjectId().toHexString()
 })
 await ticketTwo.save();
 const ticketThree = Ticket.build({
     title: 'new title',
-    price: 10
+    price: 10,
+    id:new mongoose.Types.ObjectId().toHexString()
 })
 await ticketThree.save();
 

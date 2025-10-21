@@ -3,11 +3,13 @@ import {app} from "../../app";
 import {Ticket} from "../../models/ticket";
 import {Order} from "../../models/order";
 import {OrderStatus} from "@retix/common";
+import mongoose from "mongoose";
 
 it("returns the order",async()=>{
     const ticket = Ticket.build({
         title: 'new title',
-        price: 10
+        price: 10,
+        id:new mongoose.Types.ObjectId().toHexString()
     })
     await ticket.save();
     const user = global.signin();
@@ -24,7 +26,8 @@ it("returns the order",async()=>{
 it("returns an error if one user tries to fetch another user's order",async()=>{
     const ticket = Ticket.build({
         title: 'new title',
-        price: 10
+        price: 10,
+        id:new mongoose.Types.ObjectId().toHexString()
     })
     await ticket.save();
     const user = global.signin();
