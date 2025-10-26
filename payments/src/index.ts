@@ -1,10 +1,8 @@
 import mongoose from 'mongoose';
 import { app } from './app';
 import { natsWrapper } from './nats-wrapper';
-import {TicketUpdatedListener} from "./events/listeners/ticket-updated-listener";
-import {TicketCreatedListener} from "./events/listeners/ticket-created-listeners"
-import {ExpirationCompleteListener} from "./events/listeners/expiration-complete-listener";
-import {PaymentCreatedListener} from "./events/listeners/payment-created-listener";
+import { OrderCancelledListener } from './events/Listeners/orderCancelledListener';
+import { OrderCreatedListener } from './events/Listeners/orderCreatedListener';
 
 const start = async () => {
     if(!process.env.JWT_KEY){
@@ -36,12 +34,10 @@ const start = async () => {
         process.on("SIGTERM", () => {
             natsWrapper.client.close();
         });
-        new TicketCreatedListener(natsWrapper.client).listen();
-        new TicketUpdatedListener(natsWrapper.client).listen();
-        new ExpirationCompleteListener(natsWrapper.client).listen();
-        new PaymentCreatedListener(natsWrapper.client).listen();
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Connected to MongoDB');
+        new OrderCreatedListener(natsWrapper.client).listen();
+        new OrderCancelledListener(natsWrapper.client).listen();
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
     }

@@ -120,5 +120,5 @@ it("throws an error if the ticket is reserved", async () => {
     .send({
         title: 'updated title',
         price: 100
-    }).expect(400)
+    }).expect(400) 
 })
