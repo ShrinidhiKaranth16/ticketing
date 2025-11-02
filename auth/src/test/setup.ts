@@ -3,6 +3,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { app } from '../app';
 
+jest.setTimeout(60000); // ✅ Move this to the top
+
 declare global {
     var signin: () => Promise<string[]>;
 }
@@ -10,14 +12,11 @@ declare global {
 let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
-  jest.setTimeout(60000); // setup can take longer
 
   process.env.JWT_KEY = 'asdf';
 
   mongo = await MongoMemoryServer.create({
-    binary: {
-      version: '4.4.29' // Specify compatible MongoDB version
-    },
+   binary: { version: '6.0.6' },
     instance: {
       dbName: 'test' // Optional: add database name
     }
@@ -41,7 +40,6 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  jest.setTimeout(60000); // teardown can take longer
 
   // Disconnect mongoose
   await mongoose.disconnect();
