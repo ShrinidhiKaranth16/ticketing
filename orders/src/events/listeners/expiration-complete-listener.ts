@@ -11,6 +11,7 @@ export class ExpirationCompleteListener extends Listener<ExpirationCompleteEvent
     queueGroupName = queueGroupName;
 
     async onMessage(data: ExpirationCompleteEvent['data'], msg: Message) {
+        console.log('Expiration complete', data);
         const order = await Order.findById(data.orderId);
         if (!order) {
             throw new Error('Order not found');
@@ -18,16 +19,17 @@ export class ExpirationCompleteListener extends Listener<ExpirationCompleteEvent
         if(order.status == OrderStatus.Complete){
             return msg.ack();
         }
-        order.set({
+        order.set({ 
             status: OrderStatus.Cancelled
         });
         
         await order.save();
+        console.log('Order cancelled', order);
         new OrderCancelledPublisher(natsWrapper.client).publish({
             id: order.id,
             version: order.version,
             ticket: {
-                id: order.ticket.id,
+                id: order.ticket.toString(),
             }
         });
         msg.ack();

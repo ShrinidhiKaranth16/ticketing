@@ -1,17 +1,35 @@
-import axios from 'axios';
-import buildClient from '../api/build-client';
+import Link from "next/link";
+import { useRouter } from "next/router";
+const HomePage = ({ tickets }) => {
 
-const HomePage = ({ currentUser }) => {
-    return currentUser ? (
-        <h1>Current User: {currentUser.email}</h1>
-    ) : (
-        <h1>No current user</h1>
-    );
+    const ticketList = tickets.map(ticket => {
+        return <tr key={ticket.id}>
+            <td>{ticket.title}</td>
+            <td>{ticket.price}</td>
+            <td>
+                <Link href="/tickets/[ticketId]" as={`/tickets/${ticket.id}`}>View</Link>
+            </td>
+        </tr>
+    });
+    return <div>
+        <h1>Tickets</h1>
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {ticketList}
+            </tbody>
+        </table>
+    </div>
 }
 
-HomePage.getInitialProps = async (context) => {
-    const client = buildClient(context);
-    const response = await client.get('/api/users/currentuser');
-    return { currentUser: response.data.currentUser };
+HomePage.getInitialProps = async (context,client,currentUser) => {
+    const {data} = await client.get("/api/tickets");
+    return {tickets:data};
 }
 export default HomePage;

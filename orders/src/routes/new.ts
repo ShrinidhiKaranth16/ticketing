@@ -9,7 +9,7 @@ import { natsWrapper } from '../nats-wrapper';
 
 const router = express.Router();
 
-const EXPIRATION_WINDOW_SECONDS = 15 * 60;
+const EXPIRATION_WINDOW_SECONDS = 60;
 
 router.post("/api/orders", requireAuth, [
     body('ticketId').not().isEmpty().custom((input: string) =>{
@@ -49,7 +49,7 @@ router.post("/api/orders", requireAuth, [
         },
         version: ticket.version
     })
-    res.status(201).send(order);
+    res.status(201).send(order); 
 
 })
 
