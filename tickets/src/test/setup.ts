@@ -21,7 +21,7 @@ beforeAll(async () => {
 
   mongo = await MongoMemoryServer.create({
     binary: {
-      version: '4.4.29' // Specify compatible MongoDB version
+      version: '7.0.5' // Specify compatible MongoDB version
     },
     instance: {
       dbName: 'test' // Optional: add database name

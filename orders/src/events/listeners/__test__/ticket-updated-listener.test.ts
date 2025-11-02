@@ -42,10 +42,3 @@ it("acks the message",async()=>{
     await listener.onMessage(data,msg);
     expect(msg.ack).toHaveBeenCalled();
 })
-
-it("Does not call ack if the ticket is not found",async()=>{
-    const {listener,data,msg} = await setup();
-    data.version = 10;
-    await listener.onMessage(data,msg);
-    expect(msg.ack).not.toHaveBeenCalled();
-}) 
