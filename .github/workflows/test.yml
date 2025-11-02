@@ -11,15 +11,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install OpenSSL 1.1 for MongoDB Memory Server
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.1/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
-          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
-
       - name: Install MongoDB dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libkrb5-dev
 
       - name: Install dependencies and run tests
