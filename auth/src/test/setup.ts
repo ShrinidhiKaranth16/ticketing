@@ -16,7 +16,7 @@ beforeAll(async () => {
   process.env.JWT_KEY = 'asdf';
 
   mongo = await MongoMemoryServer.create({
-   binary: { version: '6.0.6' },
+   binary: { version: '5.0.15' },
     instance: {
       dbName: 'test' // Optional: add database name
     }
