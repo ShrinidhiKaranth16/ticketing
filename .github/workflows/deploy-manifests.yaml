@@ -14,14 +14,35 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
+      # ✅ Debug step to confirm if the secret is available
+      - name: Check if DigitalOcean secret is accessible
+        run: |
+          if [ -z "${DIGITAL_OCEAN_ACCESS_TOKEN}" ]; then
+            echo "❌ DIGITAL_OCEAN_ACCESS_TOKEN is NOT available!"
+            exit 1
+          else
+            echo "✅ DIGITAL_OCEAN_ACCESS_TOKEN is available to the runner"
+          fi
+        env:
+          DIGITAL_OCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+
+      # ✅ Install DigitalOcean CLI using the token
       - name: Install doctl (DigitalOcean CLI)
         uses: digitalocean/action-doctl@v2
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
         with:
-          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+          token: ${{ env.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      # ✅ Use doctl with the correct kubeconfig
       - name: Save kubeconfig for DigitalOcean cluster
         run: doctl kubernetes cluster kubeconfig save retix
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
+      # ✅ Apply your manifests
       - name: Restart Kubernetes deployment
-        run: kubectl apply -f infra/k8s & kubectl apply -f infra/k8s-prod
+        run: |
+          kubectl apply -f infra/k8s
+          kubectl apply -f infra/k8s-prod
