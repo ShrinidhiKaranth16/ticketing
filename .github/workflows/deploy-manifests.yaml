@@ -1,0 +1,27 @@
+name: deploy-manifest
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infr/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install doctl (DigitalOcean CLI)
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save kubeconfig for DigitalOcean cluster
+        run: doctl kubernetes cluster kubeconfig save retix
+
+      - name: Restart Kubernetes deployment
+        run: kubectl apply -f infra/k8s
