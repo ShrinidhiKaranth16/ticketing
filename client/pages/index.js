@@ -12,7 +12,7 @@ const HomePage = ({ tickets }) => {
         </tr>
     });
     return <div>
-        <h1>Tickets</h1>
+        <h2 className="text-lg font-bold">Tickets</h2>
         <table className="table">
             <thead>
                 <tr>
