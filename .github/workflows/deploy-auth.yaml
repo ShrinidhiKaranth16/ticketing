@@ -18,7 +18,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd auth
-          docker build -t kss3316/auth .
+          docker build -t kss316/auth .
 
       - name: Log in to Docker Hub
         env:
