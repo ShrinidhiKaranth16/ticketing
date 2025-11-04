@@ -15,6 +15,8 @@ spec:
       containers:
         - name: client
           image: kss316/client
+          ports:
+            - containerPort: 3000 
 
 ---
 apiVersion: v1
@@ -23,9 +25,9 @@ metadata:
   name: client-srv
 spec:
   selector:
-    app: client
+    app: client                 
   ports:
     - name: client
       protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 3000                
+      targetPort: 3000         
