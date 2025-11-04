@@ -18,7 +18,7 @@ jobs:
       - name: Install doctl (DigitalOcean CLI)
         uses: digitalocean/action-doctl@v2
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
       - name: Save kubeconfig for DigitalOcean cluster
         run: doctl kubernetes cluster kubeconfig save retix
