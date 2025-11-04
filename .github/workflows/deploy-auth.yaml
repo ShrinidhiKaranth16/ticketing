@@ -18,7 +18,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd auth
-          docker build -t kss316/auth .
+          docker build -t kss3316/auth .
 
       - name: Log in to Docker Hub
         env:
@@ -28,4 +28,15 @@ jobs:
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Push Docker image
-        run: docker push kss316/auth
+        run: docker push kss3316/auth
+
+      - name: Install doctl (DigitalOcean CLI)
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save kubeconfig for DigitalOcean cluster
+        run: doctl kubernetes cluster kubeconfig save retix
+
+      - name: Restart Kubernetes deployment
+        run: kubectl rollout restart deployment auth-depl
