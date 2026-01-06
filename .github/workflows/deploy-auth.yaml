@@ -46,4 +46,4 @@ jobs:
 
       # 7️⃣ Restart Kubernetes deployment
       - name: Restart auth deployment
-        run: kubectl rollout restart deployment auth-depl -n auth
+        run: kubectl rollout restart deployment auth-depl
