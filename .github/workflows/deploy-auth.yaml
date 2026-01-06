@@ -3,40 +3,47 @@ name: deploy-auth
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "auth/**"
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Build Docker image (unique tag)
       - name: Build Docker image
         run: |
           cd auth
-          docker build -t kss316/auth .
+          docker build -t kss316/auth:${{ github.sha }} .
 
-      - name: Log in to Docker Hub
+      # 3️⃣ Login to Docker Hub (secure)
+      - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
+      # 4️⃣ Push Docker image
       - name: Push Docker image
-        run: docker push kss316/auth
+        run: docker push kss316/auth:${{ github.sha }}
 
-      - name: Install doctl (DigitalOcean CLI)
+      # 5️⃣ Install doctl
+      - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
-      - name: Save kubeconfig for DigitalOcean cluster
+      # 6️⃣ Save kubeconfig
+      - name: Save kubeconfig
         run: doctl kubernetes cluster kubeconfig save retix
 
-      - name: Restart Kubernetes deployment
-        run: kubectl rollout restart deployment auth-depl
+      # 7️⃣ Restart Kubernetes deployment
+      - name: Restart auth deployment
+        run: kubectl rollout restart deployment auth-depl -n auth
