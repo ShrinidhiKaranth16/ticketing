@@ -8,41 +8,26 @@ on:
       - "infra/**"
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ✅ Debug step to confirm if the secret is available
-      - name: Check if DigitalOcean secret is accessible
-        run: |
-          if [ -z "${DIGITAL_OCEAN_ACCESS_TOKEN}" ]; then
-            echo "❌ DIGITAL_OCEAN_ACCESS_TOKEN is NOT available!"
-            exit 1
-          else
-            echo "✅ DIGITAL_OCEAN_ACCESS_TOKEN is available to the runner"
-          fi
-        env:
-          DIGITAL_OCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
-
-      # ✅ Install DigitalOcean CLI using the token
-      - name: Install doctl (DigitalOcean CLI)
+      # 2️⃣ Install & authenticate doctl
+      - name: Install doctl
         uses: digitalocean/action-doctl@v2
-        env:
-          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
         with:
-          token: ${{ env.DIGITALOCEAN_ACCESS_TOKEN }}
+          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
-      # ✅ Use doctl with the correct kubeconfig
-      - name: Save kubeconfig for DigitalOcean cluster
+      # 3️⃣ Fetch kubeconfig for your cluster
+      - name: Save kubeconfig
         run: doctl kubernetes cluster kubeconfig save retix
-        env:
-          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
-      # ✅ Apply your manifests
-      - name: Restart Kubernetes deployment
+      # 4️⃣ Apply Kubernetes manifests
+      - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f infra/k8s
           kubectl apply -f infra/k8s-prod
