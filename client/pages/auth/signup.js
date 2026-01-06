@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Form, Title, FormGroup, Label, Input, Button } from "./signup.styles";
+import { Form, Title, FormGroup, Label, Input, Button } from "../../components/signup.styles";
 import { useState } from "react";
 import useRequest from "../../hooks/use-request";
 import Router from "next/router";
